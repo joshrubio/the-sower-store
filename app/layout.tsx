@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 
 // Metadata global
 export const metadata: Metadata = {
-  title: "MyStore",
-  description: "Buy cool products",
+  title: "The Sower",
+  description: "Refleja tu estilo y Fe con los productos de nuestro catalogo",
 };
 
 // Layout principal
