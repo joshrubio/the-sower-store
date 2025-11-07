@@ -10,13 +10,13 @@
 
 ## 🚀 Introduction
 
-Fully functional ecommerce platform using modern web technologies such as Next.js 15, Tailwind CSS v4, Stripe for payments, Zustand for state management, Clerk for Authentication and MongoDB as a database.
+Fully functional ecommerce platform using modern web technologies such as Next.js 16, Tailwind CSS, Stripe for payments, Zustand for state management, Clerk for Authentication and MongoDB as a database.
 
 Watch the tutorial on [YouTube](https://youtu.be/YOUR_VIDEO_LINK).
 
 ## ⚙️ Tech Stack
 
-- **Next.js 15** – For server components and modern routing
+- **Next.js 16** – For server components and modern routing
 - **Shadcn** – For rapid, responsive styling with Tailwind under the hood.
 - **TypeScript** – For type safety and modern JavaScript features
 - **Stripe** – For product management and payment processing
