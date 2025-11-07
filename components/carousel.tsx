@@ -21,19 +21,20 @@ export const Carousel = ({ products }: Props) => {
   }, [products.length]);
 
   const currentProduct = products[current];
-
   const price = currentProduct.default_price as Stripe.Price;
 
   return (
-    <Card className="relative overflow-hidden rounded-lg shadow-md border-gray-300">
+    <Card className="relative overflow-hidden rounded-lg shadow-md border-gray-300 max-w-2xl mx-auto">
       {currentProduct.images && currentProduct.images[0] && (
-        <div className="relative h-80 w-full">
+        <div className="relative w-full aspect-square">
           <Image
+            key={currentProduct.id}
             src={currentProduct.images[0]}
             alt={currentProduct.name}
-            layout="fill"
-            objectFit="cover"
-            className="transition-opacity duration-500 ease-in-out"
+            fill
+            className="object-contain transition-opacity duration-500 ease-in-out"
+            sizes="(max-width: 768px) 100vw, 672px"
+            priority={current === 0}
           />
         </div>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShoppingCartIcon,
   Bars3Icon,
@@ -9,6 +10,14 @@ import {
 import { useCartStore } from "@/store/cart-store";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/nextjs";
+
 export const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const { items } = useCartStore();
@@ -22,26 +31,45 @@ export const Navbar = () => {
     };
 
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow">
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
-        <Link href="/" className="hover:text-blue-600">
-          My Ecommerce
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2 hover:opacity-80">
+          <div className="relative h-10 w-10">
+            <Image
+              src="/logo.png"
+              alt="The Sower Logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+          <span className="font-bold text-lg">The Sower</span>
         </Link>
+
+        {/* Links Desktop */}
         <div className="hidden md:flex space-x-6">
-          <Link href="/">Home</Link>
+          <Link href="/" className="hover:text-blue-600">Inicio</Link>
           <Link href="/products" className="hover:text-blue-600">
-            Products
+            Productos
           </Link>
           <Link href="/checkout" className="hover:text-blue-600">
             Checkout
           </Link>
+          <SignedIn>
+          <Link href="/admin" className="hover:text-blue-600">
+            Admin
+          </Link>
+</SignedIn>
         </div>
+
+        {/* Iconos y botones */}
         <div className="flex items-center space-x-4">
+          {/* Cart */}
           <Link href="/checkout" className="relative">
             <ShoppingCartIcon className="h-6 w-6" />
             {cartCount > 0 && (
@@ -50,6 +78,26 @@ export const Navbar = () => {
               </span>
             )}
           </Link>
+
+          {/* Auth Buttons */}
+          <SignedOut>
+            <div className="hidden md:flex space-x-2">
+              <SignInButton mode="modal">
+                <Button variant="outline">Iniciar sesión</Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button className="bg-black text-white hover:bg-black/80">
+                  Registrarse
+                </Button>
+              </SignUpButton>
+            </div>
+          </SignedOut>
+
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+
+          {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             className="md:hidden"
@@ -63,23 +111,42 @@ export const Navbar = () => {
           </Button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
       {mobileOpen && (
         <nav className="md:hidden bg-white shadow-md">
-          <ul className="flex flex-col p-4 space-y-2">
+          <ul className="flex flex-col p-4 space-y-3">
             <li>
               <Link href="/" className="block hover:text-blue-600">
-                Home
+                Inicio
               </Link>
             </li>
             <li>
               <Link href="/products" className="block hover:text-blue-600">
-                Products
+                Productos
               </Link>
             </li>
             <li>
               <Link href="/checkout" className="block hover:text-blue-600">
                 Checkout
               </Link>
+            </li>
+            <li className="border-t pt-3 flex flex-col space-y-2">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <Button variant="outline" className="w-full">
+                    Iniciar sesión
+                  </Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button className="w-full bg-black text-white hover:bg-blue-700">
+                    Registrarse
+                  </Button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
             </li>
           </ul>
         </nav>
