@@ -30,6 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+       <link rel="icon" href="/logo.png" type="image/svg+xml" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} flex flex-col min-h-screen bg-white text-foreground`}
       >
