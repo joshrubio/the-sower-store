@@ -3,9 +3,14 @@ import dbConnect from "@/lib/mongodb";
 import Order from "@/models/Order";
 
 export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+   req: NextRequest,
+  context: { params: { id: string } } | { params: Promise<{ id: string }> }
 ) {
+  const params = "then" in context.params
+    ? await context.params
+    : context.params;
+
+  const { id } = params;
   try {
     const { status } = await req.json();
     await dbConnect();
