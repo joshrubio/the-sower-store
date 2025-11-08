@@ -251,7 +251,7 @@ This project follows modern development practices:
 
 ## 📄 License
 
-This project is built for educational and demonstration purposes, showcasing modern full-stack development patterns and best practices in e-commerce applications.
+This is a production e-commerce platform built for a client, showcasing enterprise-grade development patterns and best practices in modern web applications.
 
 ## 👌 Quick Start
 
