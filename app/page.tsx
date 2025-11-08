@@ -3,7 +3,6 @@ import { stripe } from "@/lib/stripe";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ProductList } from "@/components/product-list";
-import { Carousel } from "@/components/carousel";
 
 export default async function Home() {
   const products = await stripe.products.list({
@@ -36,13 +35,15 @@ export default async function Home() {
             </Button>
           </div>
           <div className="relative w-full max-w-[450px] aspect-square">
-            <Image
-              alt="Hero Image"
-              src={products.data[0].images[0]}
-              fill
-              className="rounded object-cover"
-              sizes="(max-width: 768px) 100vw, 450px"
-            />
+            {products.data.length > 0 && products.data[0].images && products.data[0].images.length > 0 && (
+              <Image
+                alt="Hero Image"
+                src={products.data[0].images[0]}
+                fill
+                className="rounded object-cover"
+                sizes="(max-width: 768px) 100vw, 450px"
+              />
+            )}
           </div>
         </div>
       </section>

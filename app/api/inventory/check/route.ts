@@ -5,7 +5,37 @@ import Inventory from "@/models/Inventory";
 // POST - Verificar stock disponible
 export async function POST(req: NextRequest) {
   try {
-    const { productId, size, color, quantity } = await req.json();
+    const body = await req.json();
+    const { productId, size, color, quantity } = body;
+
+    // Validación de entrada
+    if (!productId || typeof productId !== 'string' || productId.trim() === '') {
+      return NextResponse.json(
+        { error: "productId es requerido y debe ser un string válido" },
+        { status: 400 }
+      );
+    }
+
+    if (!size || typeof size !== 'string' || size.trim() === '') {
+      return NextResponse.json(
+        { error: "size es requerido y debe ser un string válido" },
+        { status: 400 }
+      );
+    }
+
+    if (!color || typeof color !== 'string' || color.trim() === '') {
+      return NextResponse.json(
+        { error: "color es requerido y debe ser un string válido" },
+        { status: 400 }
+      );
+    }
+
+    if (!quantity || typeof quantity !== 'number' || quantity <= 0 || !Number.isInteger(quantity)) {
+      return NextResponse.json(
+        { error: "quantity es requerido y debe ser un número entero positivo" },
+        { status: 400 }
+      );
+    }
 
     await dbConnect();
 

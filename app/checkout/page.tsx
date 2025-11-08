@@ -12,7 +12,7 @@ export default function CheckoutPage() {
     0
   );
 
-  const handleRemove = (item: any) => {
+  const handleRemove = (item: { id: string; size?: string; color?: string }) => {
     console.log("Intentando eliminar:", {
       id: item.id,
       size: item.size,

@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/mongodb";
 import Inventory from "@/models/Inventory";
 
 // POST - Reducir stock después de una compra
 export async function POST(req: NextRequest) {
+  // Verificar autenticación (solo webhooks internos deberían poder reducir stock)
+  const authResult = await auth();
+  if (!authResult.userId) {
+    return NextResponse.json(
+      { error: "Unauthorized - Only authenticated users can reduce stock" },
+      { status: 401 }
+    );
+  }
   try {
     const { productId, size, color, quantity } = await req.json();
 
@@ -39,13 +48,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Reducir stock
-    inventory.variants[variantIndex].stock -= quantity;
-    await inventory.save();
+    // Usar transacción atómica para evitar race conditions
+    const updateResult = await Inventory.updateOne(
+      {
+        productId,
+        "variants.size": size,
+        "variants.color": color,
+        "variants.stock": { $gte: quantity } // Verificar stock disponible
+      },
+      {
+        $inc: { "variants.$.stock": -quantity } // Reducir stock atómicamente
+      }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      return NextResponse.json(
+        { error: "Stock insuficiente o variante no encontrada" },
+        { status: 400 }
+      );
+    }
+
+    // Obtener el stock actualizado
+    const updatedInventory = await Inventory.findOne({ productId });
+    const updatedVariant = updatedInventory?.variants.find(
+      (v: { size: string; color: string }) => v.size === size && v.color === color
+    );
 
     return NextResponse.json({
       success: true,
-      newStock: inventory.variants[variantIndex].stock,
+      newStock: updatedVariant?.stock,
     });
   } catch (error) {
     console.error("Error reduciendo stock:", error);

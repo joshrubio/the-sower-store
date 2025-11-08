@@ -51,6 +51,13 @@ export default function OrdersPage() {
   };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    if (newStatus === "cancelled") {
+      const confirmed = window.confirm(
+        "¿Estás seguro de que quieres cancelar este pedido? Esta acción no se puede deshacer y podría requerir devolución de stock manualmente."
+      );
+      if (!confirmed) return;
+    }
+
     try {
       await fetch(`/api/orders/${orderId}`, {
         method: "PATCH",
@@ -112,6 +119,13 @@ export default function OrdersPage() {
   >
     Entregados
   </Button>
+  <Button
+    variant={filter === "cancelled" ? "default" : "outline"}
+    size="sm"
+    onClick={() => setFilter("cancelled")}
+  >
+    Cancelados
+  </Button>
 </div>
       </div>
 
@@ -146,6 +160,8 @@ export default function OrdersPage() {
                         ? "bg-blue-100 text-blue-800"
                         : order.status === "delivered"
                         ? "bg-purple-100 text-purple-800"
+                        : order.status === "cancelled"
+                        ? "bg-red-100 text-red-800"
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >

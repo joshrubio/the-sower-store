@@ -10,13 +10,13 @@
 
 ## 🚀 Introduction
 
-Fully functional ecommerce platform using modern web technologies such as Next.js 16, Tailwind CSS, Stripe for payments, Zustand for state management, Clerk for Authentication and MongoDB as a database.
+Fully functional ecommerce platform using modern web technologies such as Next.js 15, Tailwind CSS v4, Stripe for payments, Zustand for state management, Clerk for Authentication and MongoDB as a database.
 
-Watch the tutorial on [YouTube](https://youtu.be/YOUR_VIDEO_LINK).
+Watch the tutorial on [YouTube](https://www.youtube.com/watch?v=YOUR_VIDEO_ID).
 
 ## ⚙️ Tech Stack
 
-- **Next.js 16** – For server components and modern routing
+- **Next.js 15** – For server components and modern routing
 - **Shadcn** – For rapid, responsive styling with Tailwind under the hood.
 - **TypeScript** – For type safety and modern JavaScript features
 - **Stripe** – For product management and payment processing
@@ -38,11 +38,11 @@ Watch the tutorial on [YouTube](https://youtu.be/YOUR_VIDEO_LINK).
 - **Seamless Stripe Checkout:**  
   A secure checkout process powered by Stripe's API.
 
-- **Secure uthentication**
-  Powered by clerk
+- **Secure Authentication**
+  Powered by Clerk
 
 - **Admin Features**
-  Manage stock and deliverys through a modern admin panel.
+  Manage stock and deliveries through a modern admin panel.
 
 - **Modern UI:**  
   A sleek, professional design built with Tailwind CSS and Shadcn components.
@@ -62,3 +62,6 @@ Run the following commands in your terminal:
 ```bash
 git clone https://github.com/yourusername/your-ecommerce-repo.git
 cd your-ecommerce-repo
+npm install
+npm run dev
+```

@@ -4,7 +4,7 @@ import Stripe from "stripe";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { useCartStore } from "@/store/cart-store";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Props {
   product: Stripe.Product;
@@ -33,12 +33,7 @@ export const ProductDetail = ({ product }: Props) => {
   const { addItem } = useCartStore();
   const price = product.default_price as Stripe.Price;
 
-  // Verificar stock cuando cambian talla, color o cantidad
-  useEffect(() => {
-    checkStock();
-  }, [selectedSize, selectedColor, quantityToAdd]);
-
-  const checkStock = async () => {
+  const checkStock = useCallback(async () => {
     try {
       const res = await fetch("/api/inventory/check", {
         method: "POST",
@@ -56,29 +51,58 @@ export const ProductDetail = ({ product }: Props) => {
     } catch (error) {
       console.error("Error verificando stock:", error);
     }
-  };
+  }, [product.id, selectedSize, selectedColor, quantityToAdd]);
+
+  // Verificar stock cuando cambian talla, color o cantidad
+  useEffect(() => {
+    checkStock();
+  }, [checkStock]);
+
 
   const onAddToCart = async () => {
-    if (!stockInfo?.available) {
-      alert(stockInfo?.message || "No hay stock disponible");
-      return;
+    // Validación adicional en el servidor antes de añadir al carrito
+    try {
+      const res = await fetch("/api/inventory/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          size: selectedSize,
+          color: selectedColor,
+          quantity: quantityToAdd,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!data.available) {
+        alert(data.message || "No hay stock disponible");
+        // Re-verificar stock después del error
+        checkStock();
+        return;
+      }
+
+      setLoading(true);
+
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: price.unit_amount as number,
+        imageUrl: product.images ? product.images[0] : null,
+        quantity: quantityToAdd,
+        size: selectedSize,
+        color: selectedColor,
+      });
+
+      setQuantityToAdd(1);
+      setLoading(false);
+      alert("Producto añadido al carrito");
+    } catch (error) {
+      console.error("Error añadiendo al carrito:", error);
+      alert("Error al añadir el producto al carrito. Inténtalo de nuevo.");
+      // Re-verificar stock después del error
+      checkStock();
     }
-
-    setLoading(true);
-
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: price.unit_amount as number,
-      imageUrl: product.images ? product.images[0] : null,
-      quantity: quantityToAdd,
-      size: selectedSize,
-      color: selectedColor,
-    });
-
-    setQuantityToAdd(1);
-    setLoading(false);
-    alert("Producto añadido al carrito");
   };
 
   const increaseQuantity = () => {

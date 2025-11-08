@@ -29,10 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-       <link rel="icon" href="/logo.png" type="image/svg+xml" />
-      </head>
+    <html lang="es">
       <body
         className={`${geistSans.variable} ${geistMono.variable} flex flex-col min-h-screen bg-white text-foreground`}
       >

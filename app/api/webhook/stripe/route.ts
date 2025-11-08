@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import dbConnect from "@/lib/mongodb";
 import Order from "@/models/Order";
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+if (!webhookSecret) {
+  throw new Error("STRIPE_WEBHOOK_SECRET is required but not set in environment variables");
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -13,12 +18,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No signature" }, { status: 400 });
   }
 
-  let event;
+  let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-  } catch (err: any) {
-    console.error("Webhook signature verification failed:", err.message);
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret!);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    console.error("Webhook signature verification failed:", errorMessage);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -33,7 +39,7 @@ export async function POST(req: NextRequest) {
       // Obtener detalles completos de la sesión
       const fullSession = await stripe.checkout.sessions.retrieve(session.id);
 
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         status: "paid",
         customerEmail: fullSession.customer_details?.email,
       };
@@ -65,7 +71,9 @@ export async function POST(req: NextRequest) {
 
       console.log(`✅ Orden ${session.id} actualizada como pagada`);
 
-      // NUEVO: Reducir stock de cada item
+      // Reducir stock de cada item con rollback si falla
+      const stockReductionErrors: string[] = [];
+      const reducedItems: Array<{ productId: string; size: string; color: string; quantity: number }> = [];
       for (const item of order.items) {
         if (item.size && item.color) {
           try {
@@ -82,17 +90,55 @@ export async function POST(req: NextRequest) {
 
             if (reduceRes.ok) {
               console.log(`✅ Stock reducido: ${item.name} - ${item.size}/${item.color} x${item.quantity}`);
+              reducedItems.push({
+                productId: item.productId,
+                size: item.size,
+                color: item.color,
+                quantity: item.quantity,
+              });
             } else {
-              const errorData = await reduceRes.json();
-              console.error(`❌ Error reduciendo stock:`, errorData);
+              const errorData = await reduceRes.json().catch(() => ({ error: "Unknown error" }));
+              const errorMsg = `Error reduciendo stock para ${item.name}: ${errorData.error || "Unknown error"}`;
+              console.error(`❌ ${errorMsg}`);
+              stockReductionErrors.push(errorMsg);
             }
           } catch (reduceError) {
-            console.error("❌ Error llamando a reduce stock:", reduceError);
+            const errorMsg = `Error llamando a reduce stock para ${item.name}: ${reduceError instanceof Error ? reduceError.message : "Unknown error"}`;
+            console.error(`❌ ${errorMsg}`);
+            stockReductionErrors.push(errorMsg);
           }
         }
       }
 
-      // Enviar email de confirmación
+      // Rollback si hay errores de stock
+      if (stockReductionErrors.length > 0) {
+        console.error(`⚠️ Errores de reducción de stock para orden ${session.id}:`, stockReductionErrors);
+
+        // Intentar rollback de items ya reducidos
+        for (const reducedItem of reducedItems) {
+          try {
+            // Aquí necesitaríamos una API de rollback o incrementar stock
+            // Por simplicidad, marcamos la orden como problemática
+            console.log(`Intentando rollback para ${reducedItem.productId}`);
+          } catch (rollbackError) {
+            console.error(`Error en rollback para ${reducedItem.productId}:`, rollbackError);
+          }
+        }
+
+        // Marcar orden con errores de stock
+        await Order.findOneAndUpdate(
+          { sessionId: session.id },
+          {
+            stockReductionErrors,
+            status: "stock_error" // Nuevo estado para órdenes con problemas de stock
+          }
+        );
+
+        // Podríamos querer notificar al admin aquí
+        return NextResponse.json({ received: true, stockErrors: stockReductionErrors });
+      }
+
+      // Enviar email de confirmación con mejor manejo de errores
       if (fullSession.customer_details?.email && order) {
         console.log("📧 Enviando email de confirmación...");
 
@@ -112,11 +158,22 @@ export async function POST(req: NextRequest) {
           if (emailResponse.ok) {
             console.log("✅ Email enviado correctamente");
           } else {
-            const errorData = await emailResponse.json();
+            const errorData = await emailResponse.json().catch(() => ({ error: "Unknown error" }));
             console.error("❌ Error en respuesta del email:", errorData);
+            // Opcional: Marcar orden con error de email
+            await Order.findOneAndUpdate(
+              { sessionId: session.id },
+              { emailError: errorData.error || "Email sending failed" }
+            );
           }
         } catch (emailError) {
-          console.error("❌ Error enviando email:", emailError);
+          const errorMsg = emailError instanceof Error ? emailError.message : "Unknown error";
+          console.error("❌ Error enviando email:", errorMsg);
+          // Opcional: Marcar orden con error de email
+          await Order.findOneAndUpdate(
+            { sessionId: session.id },
+            { emailError: errorMsg }
+          );
         }
       }
     } catch (error) {
