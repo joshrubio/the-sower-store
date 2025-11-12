@@ -11,7 +11,7 @@ export default async function Home() {
   });
 
   return (
-    <div>
+    <div className="min-h-screen">
       <section className="rounded bg-neutral-100 py-8 sm:py-12">
         <div className="mx-auto grid grid-cols-1 items-center justify-items-center gap-8 px-8 sm:px-16 md:grid-cols-2">
           <div className="max-w-md space-y-4">
@@ -47,8 +47,19 @@ export default async function Home() {
           </div>
         </div>
       </section>
-      <section className="py-8">
-        <ProductList products={products.data} />
+       {/* Products Section */}
+      <section className="py-20 sm:py-24 lg:py-32">
+        <div className="container mx-auto px-8 sm:px-12 lg:px-16">
+          <div className="mb-16 text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Productos Destacados
+            </h2>
+            <p className="mt-2 text-neutral-600">
+              Explora nuestra colección de camisetas con diseños únicos
+            </p>
+          </div>
+          <ProductList products={products.data} />
+        </div>
       </section>
     </div>
   );
