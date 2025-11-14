@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "The Sower <onboarding@resend.dev>",
+      from: "The Sower <pedidos@thesower.es",
       to: customerEmail ? [customerEmail, process.env.ADMIN_EMAIL] : [process.env.ADMIN_EMAIL],
       subject: `Nuevo Pedido #${orderId.slice(-8)} - The Sower${customerEmail ? ` (Cliente: ${customerEmail})` : ''}`,
       react: OrderConfirmationEmail({ 
