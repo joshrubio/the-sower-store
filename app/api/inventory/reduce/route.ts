@@ -6,13 +6,13 @@ import Inventory from "@/models/Inventory";
 // POST - Reducir stock después de una compra
 export async function POST(req: NextRequest) {
   // Verificar autenticación (solo webhooks internos deberían poder reducir stock)
-  const authResult = await auth();
-  if (!authResult.userId) {
-    return NextResponse.json(
-      { error: "Unauthorized - Only authenticated users can reduce stock" },
-      { status: 401 }
-    );
-  }
+  // const authResult = await auth();
+  // if (!authResult.userId) {
+    // return NextResponse.json(
+     // { error: "Unauthorized - Only authenticated users can reduce stock" },
+     // { status: 401 }
+    // );
+  //}
   try {
     const { productId, size, color, quantity } = await req.json();
 

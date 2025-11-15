@@ -18,18 +18,18 @@ export async function POST(request: Request) {
       throw new Error("ADMIN_EMAIL is required but not set in environment variables");
     }
 
-    const { data, error } = await resend.emails.send({
-      from: "The Sower <pedidos@thesower.es",
-      to: customerEmail ? [customerEmail, process.env.ADMIN_EMAIL] : [process.env.ADMIN_EMAIL],
-      subject: `Nuevo Pedido #${orderId.slice(-8)} - The Sower${customerEmail ? ` (Cliente: ${customerEmail})` : ''}`,
-      react: OrderConfirmationEmail({ 
-        orderId, 
-        items, 
-        total,
-        shippingAddress,
-        customerEmail
-      }),
-    });
+   const { data, error } = await resend.emails.send({
+  from: "The Sower <pedidos@thesower.es>",
+  to: [process.env.ADMIN_EMAIL!], // Solo admin
+  subject: `Nuevo Pedido #${orderId.slice(-8)} - Cliente: ${customerEmail}`,
+  react: OrderConfirmationEmail({ 
+    orderId, 
+    items, 
+    total,
+    shippingAddress,
+    customerEmail
+  }),
+});
 
     if (error) {
       console.error("Error de Resend:", error);
