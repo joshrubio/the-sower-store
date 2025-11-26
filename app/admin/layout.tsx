@@ -4,6 +4,7 @@
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { Home, Package, ClipboardList, Menu } from "lucide-react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
 
 export default function AdminLayout({
@@ -32,8 +33,14 @@ export default function AdminLayout({
       {/* Sidebar izquierda */}
       <aside className={`fixed md:relative z-40 h-full w-64 bg-white border-r shadow-sm flex flex-col justify-between transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div>
-          <div className="p-6 border-b">
+          <div className="p-6 border-b flex justify-between items-center">
             <h1 className="text-xl font-bold text-gray-800">Panel Admin</h1>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="md:hidden p-1 hover:bg-gray-100 rounded"
+            >
+              <XMarkIcon className="w-5 h-5" />
+            </button>
           </div>
 
           <nav className="flex flex-col space-y-1 p-4">
