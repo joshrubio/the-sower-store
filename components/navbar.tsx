@@ -60,12 +60,13 @@ export const Navbar = () => {
           <Link href="/checkout" className="hover:text-blue-600">
             Checkout
           </Link>
-          <SignedIn>
-          <Link href="/admin" className="hover:text-blue-600">
-            Admin
-          </Link>
-</SignedIn>
-        </div>
+        
+        <SignedIn>
+            <Link href="/admin" className="block hover:text-blue-600">
+              Admin
+            </Link>
+            </SignedIn>
+            </div>
 
         {/* Iconos y botones */}
         <div className="flex items-center space-x-4">
@@ -80,6 +81,9 @@ export const Navbar = () => {
           </Link>
 
           {/* Auth Buttons */}
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
           <SignedOut>
             <div className="hidden md:flex space-x-2">
               <SignInButton mode="modal">
@@ -92,10 +96,6 @@ export const Navbar = () => {
               </SignUpButton>
             </div>
           </SignedOut>
-
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
 
           {/* Mobile Menu Button */}
           <Button
@@ -130,6 +130,13 @@ export const Navbar = () => {
               <Link href="/checkout" className="block hover:text-blue-600">
                 Checkout
               </Link>
+              </li>
+            <li>
+              <SignedIn>
+             <Link href="/admin" className="block hover:text-blue-600">
+              Admin
+            </Link>
+          </SignedIn>
             </li>
             <li className="border-t pt-3 flex flex-col space-y-2">
               <SignedOut>
@@ -144,9 +151,7 @@ export const Navbar = () => {
                   </Button>
                 </SignUpButton>
               </SignedOut>
-              <SignedIn>
-                <UserButton afterSignOutUrl="/" />
-              </SignedIn>
+              
             </li>
           </ul>
         </nav>

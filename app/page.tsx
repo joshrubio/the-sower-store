@@ -3,6 +3,7 @@ import { stripe } from "@/lib/stripe";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ProductList } from "@/components/product-list";
+import { AnimatedHeroCards } from "@/components/animated-hero-cards";
 
 export default async function Home() {
   const products = await stripe.products.list({
@@ -19,7 +20,7 @@ export default async function Home() {
               Bienvenido a The Sower
             </h2>
             <p className="text-neutral-600">
-              Descubre nuestros productos, refleja tu Fe y estilo con nuestra colección.
+              Descubre una colección exclusiva de productos que fusionan fe, estilo y calidad excepcional.
             </p>
             <Button
               asChild
@@ -34,17 +35,7 @@ export default async function Home() {
               </Link>
             </Button>
           </div>
-          <div className="relative w-full max-w-[450px] aspect-square">
-            {products.data.length > 0 && products.data[0].images && products.data[0].images.length > 0 && (
-              <Image
-                alt="Hero Image"
-                src={products.data[0].images[0]}
-                fill
-                className="rounded object-cover"
-                sizes="(max-width: 768px) 100vw, 450px"
-              />
-            )}
-          </div>
+          <AnimatedHeroCards products={products.data} />
         </div>
       </section>
        {/* Products Section */}

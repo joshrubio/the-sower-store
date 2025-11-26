@@ -1,17 +1,36 @@
 // app/admin/layout.tsx
+"use client";
+
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { Home, Package, ClipboardList } from "lucide-react";
+import { Home, Package, ClipboardList, Menu } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    handleResize(); // Set initial state
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Sidebar izquierda */}
-      <aside className="w-64 bg-white border-r shadow-sm flex flex-col justify-between">
+      <aside className={`fixed md:relative z-40 h-full w-64 bg-white border-r shadow-sm flex flex-col justify-between transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div>
           <div className="p-6 border-b">
             <h1 className="text-xl font-bold text-gray-800">Panel Admin</h1>
@@ -50,7 +69,15 @@ export default function AdminLayout({
       </aside>
 
       {/* Contenido principal */}
-      <main className="flex-1 p-8 overflow-y-auto">{children}</main>
+      <main className="flex-1 p-8 overflow-y-auto">
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="md:hidden mb-4 p-2 bg-gray-200 rounded"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        {children}
+      </main>
     </div>
   );
 }
